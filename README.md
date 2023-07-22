@@ -254,20 +254,3 @@ visual_bridge.advanced_geometry_material('ball',
 ```
 
 
-## API-Eng
-
-In fact, this project is developed in Eng API,
-but I do not have time to write document.
-The api alignment can be found in mcom.py:
-```
-别名对齐 = [
-    ('v3d_init', 'v3d_init'),
-    ('set_style', 'set_style'),
-    ('geometry_rotate_scale_translate','geometry_rotate_scale_translate'),
-    ('advanced_geometry_rotate_scale_translate','advanced_geometry_rotate_scale_translate'),
-    ('v3d_object','v3d_object'),
-    ('v3d_show','v3d_show'),
-    ('line3d','line3d'),
-    ('flash','flash'),
-]
-```
