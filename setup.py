@@ -22,7 +22,7 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
-extra_files = package_files('vhmap') + package_files('UTIL')
+extra_files = package_files('vhmap')
 
 
 
@@ -34,9 +34,9 @@ setuptools.setup(
     description="Advanced 3D visualizer for researchers",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/binary-husky/hmp2g",
+    url="https://github.com/binary-husky/vhmap",
     project_urls={
-        "Bug Tracker": "https://github.com/binary-husky/hmp2g/issues",
+        "Bug Tracker": "https://github.com/binary-husky/vhmap/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -46,9 +46,6 @@ setuptools.setup(
     package_dir={"": "."},
     package_data={"": extra_files},
     include_package_data=True,
-    # package_data=[
-    #     ('src/vhmap/threejsmod', [f for f in glob.glob('src/vhmap/threejsmod/**/*', recursive=True) if not os.path.isdir(f)]),
-    # ],
     packages=setuptools.find_packages(where="."),
     python_requires=">=3.6",
     install_requires=_process_requirements(),

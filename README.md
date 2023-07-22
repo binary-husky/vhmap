@@ -17,7 +17,7 @@
 
 ## 安装 
 ```shell
-pip install vhmap
+pip install vhmap>=4
 ```
 
 ## 20行代码-展示VHMAP的简单、丝滑
