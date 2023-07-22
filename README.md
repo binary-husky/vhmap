@@ -44,18 +44,18 @@ from vhmap.mcom import mcom
 import numpy as np
 class TestVhmap():
     def render(self, t):
-        if not hasattr(self, '可视化桥'):
-            self.可视化桥 = mcom(path='TEMP/v2d_logger/', draw_mode='Threejs')
-            self.可视化桥.初始化3D()
-            self.可视化桥.设置样式('gray')
-            self.可视化桥.其他几何体之旋转缩放和平移('box', 'BoxGeometry(1,1,1)',   0,0,0,  1,1,1, 0,0,0) 
+        if not hasattr(self, 'visual_bridge'):
+            self.visual_bridge = mcom(path='TEMP/v2d_logger/', draw_mode='Threejs')
+            self.visual_bridge.v3d_init()
+            self.visual_bridge.set_style('gray')
+            self.visual_bridge.advanced_geometry_rotate_scale_translate('box', 'BoxGeometry(1,1,1)',   0,0,0,  1,1,1, 0,0,0) 
 
         x = np.cos(t); y=np.sin(t); z= np.cos(t)*np.sin(t)  # 此帧的x,y,z坐标
-        self.可视化桥.发送几何体(
+        self.visual_bridge.v3d_object(
             'box|2233|Red|0.1',     # 填入 ‘形状|几何体之ID标识|颜色|大小’即可
             x, y, z, ro_x=0, ro_y=0, ro_z=np.sin(t),    # 三维位置+欧拉旋转变换，六自由度
             track_n_frame=20)                           # 显示历史20帧留下的轨迹
-        self.可视化桥.结束关键帧()
+        self.visual_bridge.v3d_show()   # 结束关键帧
 
 if __name__ == '__main__':
     x = TestVhmap()
@@ -89,7 +89,7 @@ python -m vhmap.examples.nb_3body_specials
 <img src="md_imgs/动画13.gif"  width="300" >
 <img src="md_imgs/动画12-1.gif"  width="700" >
 </div>
-感谢 Xiaoming LI and Shijun LIAO, Shanghai Jiaotong University, China 的三体初始值：
+三体初始值: Xiaoming LI, Shanghai Jiaotong University 
 https://numericaltank.sjtu.edu.cn/three-body/three-body-movies.htm
 
 ## 如何回放
@@ -111,26 +111,26 @@ from vhmap.mcom import mcom
 
 ### 初始化
 ```python
-可视化桥 = mcom(path='TEMP/v2d_logger/', draw_mode='Threejs')
-可视化桥.初始化3D()
+visual_bridge = mcom(path='TEMP/v2d_logger/', draw_mode='Threejs')
+visual_bridge.v3d_init()
 ```
 
-### 设置样式
+### set_style
 ```python
-可视化桥.设置样式('star')       # 布置星空
-可视化桥.设置样式('grid')       # 布置2维网格
-可视化桥.设置样式('grid3d')     # 布置3维网格
-可视化桥.设置样式('earth')      # 在场景中放一个地球
-可视化桥.设置样式('background', color='White') # 注意不可以省略参数键值'color=' ！
+visual_bridge.set_style('star')       # 布置星空
+visual_bridge.set_style('grid')       # 布置2维网格
+visual_bridge.set_style('grid3d')     # 布置3维网格
+visual_bridge.set_style('earth')      # 在场景中放一个地球
+visual_bridge.set_style('background', color='White') # 注意不可以省略参数键值'color=' ！
 
 # 如果label要使用中文字符，需要设置字体，否则字符会变成问号'?'
-可视化桥.设置样式('font', font_path='/examples/fonts/ttf/HGXH_CNKI.TTF') # 注意不可以省略参数键值'font_path=' ！
+visual_bridge.set_style('font', font_path='/examples/fonts/ttf/HGXH_CNKI.TTF') # 注意不可以省略参数键值'font_path=' ！
 # 如果label要使用中文字符，而且需要换行，则还需要额外设置行距 fontLineHeight
-可视化桥.设置样式('font', fontPath='/examples/fonts/ttf/simhei.ttf', fontLineHeight=1500)   
+visual_bridge.set_style('font', fontPath='/examples/fonts/ttf/simhei.ttf', fontLineHeight=1500)   
 
 
-可视化桥.设置样式('skybox', path='/wget/shabby.jpg')    # 设置天空盒子，注意不可以省略参数键值'path='
-可视化桥.设置样式('skybox6side',    # 设置天空盒子，注意不可以省略参数键值 !!
+visual_bridge.set_style('skybox', path='/wget/shabby.jpg')    # 设置天空盒子，注意不可以省略参数键值'path='
+visual_bridge.set_style('skybox6side',    # 设置天空盒子，注意不可以省略参数键值 !!
     posx='/wget/mars_textures/mars_posx.jpg',   
     negx='/wget/mars_textures/mars_negx.jpg',   
     posy='/wget/mars_textures/mars_posy.jpg',
@@ -145,23 +145,23 @@ from vhmap.mcom import mcom
 ### 声明几何体
 ```python
 # declare geo 'oct1', init with OctahedronGeometry, then (1)rotate & (2)scale & (3)translate
-可视化桥.其他几何体之旋转缩放和平移('oct1', 'OctahedronGeometry(1,0)', 0,0,0,  1,1,1, 0,0,0)   # 八面体
+visual_bridge.advanced_geometry_rotate_scale_translate('oct1', 'OctahedronGeometry(1,0)', 0,0,0,  1,1,1, 0,0,0)   # 八面体
 # 需要换成其他几何体，请把'OctahedronGeometry(1,0)'替换，参考网址 https://threejs.org/docs/index.html?q=Geometry
-可视化桥.其他几何体之旋转缩放和平移('any_name_you_want', 'TorusGeometry(10,3,16,100)',   0,0,0,  1,1,1, 0,0,0) # 甜甜圈
+visual_bridge.advanced_geometry_rotate_scale_translate('any_name_you_want', 'TorusGeometry(10,3,16,100)',   0,0,0,  1,1,1, 0,0,0) # 甜甜圈
 # declare geo 'ball'
-可视化桥.其他几何体之旋转缩放和平移('ball', 'SphereGeometry(1)',   0,0,0,  1,1,1, 0,0,0) # 球体
+visual_bridge.advanced_geometry_rotate_scale_translate('ball', 'SphereGeometry(1)',   0,0,0,  1,1,1, 0,0,0) # 球体
 # declare geo 'box'
-可视化桥.其他几何体之旋转缩放和平移('box', 'BoxGeometry(1,1,1)',   0,0,0,  1,1,1, 0,0,0) # 长方体
+visual_bridge.advanced_geometry_rotate_scale_translate('box', 'BoxGeometry(1,1,1)',   0,0,0,  1,1,1, 0,0,0) # 长方体
 # declare geo 'Plane', 使用fbx模型，路径为/vhmap/threejsmod/examples/files/plane.fbx
-可视化桥.其他几何体之旋转缩放和平移('Plane', 'fbx=/examples/files/plane.fbx', -np.pi/2, 0, np.pi/2,  1,1,1, 0,0,0)   # 八面体
+visual_bridge.advanced_geometry_rotate_scale_translate('Plane', 'fbx=/examples/files/plane.fbx', -np.pi/2, 0, np.pi/2,  1,1,1, 0,0,0)   # 八面体
 
 ```
 
-### 发送几何体，可用颜色（JS颜色，支持Hex颜色）参考 https://www.w3schools.com/colors/colors_names.asp
+### v3d，可用颜色（JS颜色，支持Hex颜色）参考 https://www.w3schools.com/colors/colors_names.asp
 ```python
 # 注意不可以省略参数键值
 x=1; y=2; z=3
-可视化桥.发送几何体(
+visual_bridge.v3d_object(
     'ball|8848|MidnightBlue|0.5',  # 填入核心参量： “已声明的形状|几何体的唯一ID标识|颜色|整体大小”
     x, y, z,                # 三维位置，3/6dof
     ro_x=0, ro_y=0, ro_z=0, # 欧拉旋转变换，3/6dof
@@ -190,7 +190,7 @@ Then: 增加B的renderOrder，或者减小A的renderOrder（取值范围0~127）
 ```python
 # 画一条(0,0,0) -> (1,1,0) -> (2,2,0) -> (3,3,0) 的线
 # 注意不可以省略参数键值!!
-可视化桥.发送线条(
+visual_bridge.line3d(
     'simple|3999|MidnightBlue|0.004', # 填入核心参量： “simple|线条的唯一ID标识|颜色|整体大小”
     x_arr=np.array([0, 1, 2, 3]),   # 曲线的x坐标列表
     y_arr=np.array([0, 1, 2, 3]),   # 曲线的y坐标列表
@@ -201,7 +201,7 @@ Then: 增加B的renderOrder，或者减小A的renderOrder（取值范围0~127）
 
 # fat 型线条，支持调节宽度、虚线、透明度等，但是不稳定仍然在测试中
 # 注意不可以省略参数键值!!
-可视化桥.发送线条(
+visual_bridge.line3d(
     'fat|3999|MidnightBlue|0.004', # 填入核心参量： “fat|线条的唯一ID标识|颜色|整体大小”
     x_arr=np.array([0, 1, 2, 3]),   # 曲线的x坐标列表
     y_arr=np.array([0, 1, 2, 3]),   # 曲线的y坐标列表
@@ -214,10 +214,10 @@ Then: 增加B的renderOrder，或者减小A的renderOrder（取值范围0~127）
 )
 ```
 
-### 发射光束（从几何体src到几何体dst）
+### flash（从几何体src到几何体dst）
 ```python
 # 注意不可以省略参数键值!!
-可视化桥.发射光束(
+visual_bridge.flash(
     'beam',         # 有 beam 和 lightning 两种选择
     src=index_ID,   # 发射者的几何体的唯一ID标识
     dst=index_ID2,  # 接收者的几何体的唯一ID标识
@@ -231,13 +231,13 @@ Then: 增加B的renderOrder，或者减小A的renderOrder（取值范围0~127）
 
 终结这一帧（并开始下一帧）
 ```python
-self.可视化桥.结束关键帧()
+self.visual_bridge.v3d_show()
 ```
 
 
 ### 测试中-添加贴图
 ```python
-可视化桥.advanced_geometry_material('ball', 
+visual_bridge.advanced_geometry_material('ball', 
     map='/examples/planets/images/earthmap1k.jpg',
     bumpMap='/examples/planets/images/earthmap1k.jpg',
     bumpScale = 0.05,
@@ -254,13 +254,13 @@ but I do not have time to write document.
 The api alignment can be found in mcom.py:
 ```
 别名对齐 = [
-    ('初始化3D', 'v2d_init'),
-    ('设置样式', 'set_style'),
-    ('形状之旋转缩放和平移','geometry_rotate_scale_translate'),
-    ('其他几何体之旋转缩放和平移','advanced_geometry_rotate_scale_translate'),
-    ('发送几何体','v2dx'),
-    ('结束关键帧','v2d_show'),
-    ('发送线条','line3d'),
-    ('发射光束','flash'),
+    ('v3d_init', 'v3d_init'),
+    ('set_style', 'set_style'),
+    ('geometry_rotate_scale_translate','geometry_rotate_scale_translate'),
+    ('advanced_geometry_rotate_scale_translate','advanced_geometry_rotate_scale_translate'),
+    ('v3d_object','v3d_object'),
+    ('v3d_show','v3d_show'),
+    ('line3d','line3d'),
+    ('flash','flash'),
 ]
 ```

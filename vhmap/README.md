@@ -254,12 +254,12 @@ but I do not have time to write document.
 The api alignment can be found in mcom.py:
 ```
 别名对齐 = [
-    ('初始化3D', 'v2d_init'),
+    ('初始化3D', 'v3d_init'),
     ('设置样式', 'set_style'),
     ('形状之旋转缩放和平移','geometry_rotate_scale_translate'),
     ('其他几何体之旋转缩放和平移','advanced_geometry_rotate_scale_translate'),
-    ('发送几何体','v2dx'),
-    ('结束关键帧','v2d_show'),
+    ('发送几何体','v3d_object'),
+    ('结束关键帧','v3d_show'),
     ('发送线条','line3d'),
     ('发射光束','flash'),
 ]

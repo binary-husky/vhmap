@@ -6,18 +6,18 @@ from vhmap.utils.colorful import *
 from vhmap.utils.network import get_host_ip, find_free_port
 
 mcom_fn_list_define = [
-    "v2dx", "flash", "plot", "figure", "hold", "box", "pause", "clf", "xlim", "ylim", "xlabel", 
-    "ylabel", "drawnow", "v2d", "v2d_init", "v3d_init", "v2L", "title", "plot3", "grid", "v3dx", "v2d_show", 
+    "v3d_object", "flash", "plot", "figure", "hold", "box", "pause", "clf", "xlim", "ylim", "xlabel", 
+    "ylabel", "drawnow", "v2d", "v3d_init", "v3d_init", "v2L", "title", "plot3", "grid", "v3dx", "v3d_show", 
     "v2d_pop", "v2d_line_object", "v2d_clear", "v2d_add_terrain", "set_style", "set_env", "use_geometry", 
     "geometry_rotate_scale_translate", "test_function_terrain", 'line3d', 'advanced_geometry_rotate_scale_translate',
 ]
 别名对齐 = [
-    ('初始化3D', 'v2d_init'),
+    ('初始化3D', 'v3d_init'),
     ('设置样式', 'set_style'),
     ('形状之旋转缩放和平移','geometry_rotate_scale_translate'),
     ('其他几何体之旋转缩放和平移','advanced_geometry_rotate_scale_translate'),
-    ('发送几何体','v2dx'),
-    ('结束关键帧','v2d_show'),
+    ('发送几何体','v3d_object'),
+    ('结束关键帧','v3d_show'),
     ('发送线条','line3d'),
 ]
 
@@ -555,7 +555,7 @@ class DrawProcess(Process):
             my_http.start()
         self.libs_family = {
             'rec_init': 'rec', 'rec': 'rec', 'rec_show': 'rec',
-            'v2d_init': 'v2d', 'v2dx':'v2d', 'v2d_show': 'v2d', 'v2d_pop':'v2d',
+            'v3d_init': 'v2d', 'v3d_object':'v2d', 'v3d_show': 'v2d', 'v2d_pop':'v2d',
             'v2d_line_object':'v2d', 'v2d_clear':'v2d', 'v2d_add_terrain': 'v2d',
         }
         self.libs_init_fns = {

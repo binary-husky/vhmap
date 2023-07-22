@@ -45,7 +45,7 @@ class RecallProcessThreejs(Process):
             #         with gzip.open(self.file_path, 'rt') as zip:
             #             try:
             #                 for line in zip:
-            #                     if 'v2d_init' in line: continue
+            #                     if 'v3d_init' in line: continue
             #                     new_buff_list.append(line)
             #                     if len(new_buff_list) > 1e2:
             #                         self.run_handler(new_buff_list)
