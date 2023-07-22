@@ -8,7 +8,7 @@ def find_free_port():
         return s.getsockname()[1]
 
 def find_free_port_no_repeat():
-    from UTIL.file_lock import FileLock
+    from vhmap.utils.file_lock import FileLock
     from config import GlobalConfig as cfg
     fp = './TEMP/find_free_ports_no_repeat_%s'%cfg.machine_info['ExpUUID']
 
@@ -575,7 +575,7 @@ class QueueOnTcpClient():
 
 class QueueOnTcpServer():
     def __init__(self, ip_port):
-        from UTIL.network import TcpServerP2P
+        from vhmap.utils.network import TcpServerP2P
         self.tcpServerP2P = TcpServerP2P(ip_port, obj='str')
         self.handler = None
         self.queue = None

@@ -2,7 +2,7 @@ import os, sys
 import argparse
 from vhmap.mcom import *
 from vhmap.mcom_replay import RecallProcessThreejs
-from UTIL.network import find_free_port
+from vhmap.utils.network import find_free_port
 
 
 if __name__ == '__main__':

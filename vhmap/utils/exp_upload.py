@@ -1,5 +1,5 @@
 import paramiko, os, time
-from UTIL.colorful import print亮紫, print亮靛
+from vhmap.utils.colorful import print亮紫, print亮靛
 class ChainVar(object):
     def __init__(self, chain_func, chained_with):
         self.chain_func = chain_func

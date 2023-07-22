@@ -3,7 +3,7 @@ import threading
 import copy, os
 import time
 import json
-from UTIL.colorful import *
+from vhmap.utils.colorful import *
 # test sync to github
 # ubuntu command to kill process: kill -9 $(ps -ef | grep fuqingxu |grep python | grep -v grep | awk '{print $ 2}')
 

@@ -1,5 +1,5 @@
 import time, requests, threading, os, atexit
-from UTIL.colorful import *
+from vhmap.utils.colorful import *
 import psutil
 
 def kill_process(p):
@@ -55,7 +55,7 @@ def clean_child_process(pid):
 
 
 def hmp_clean_up():
-    from UTIL.exp_upload import upload_experiment_results
+    from vhmap.utils.exp_upload import upload_experiment_results
     from config import GlobalConfig as cfg
     print亮黄('[main.py] upload results to storage server via SSH')
     if cfg.allow_res_upload: upload_experiment_results(cfg)

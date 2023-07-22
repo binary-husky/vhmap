@@ -1,7 +1,7 @@
 import numpy as np
 import random, time
 from scipy.integrate import ode
-from UTIL.tensor_ops import distance_matrix, repeat_at, delta_matrix
+from vhmap.utils.tensor_ops import distance_matrix, repeat_at, delta_matrix
 from vhmap.mcom import mcom
 PI = np.pi
 def run():

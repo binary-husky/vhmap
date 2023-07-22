@@ -1,4 +1,4 @@
-from UTIL.colorful import print亮红
+from vhmap.utils.colorful import print亮红
 from .tensor_ops import __hash__
 import torch, time
 import pickle, os

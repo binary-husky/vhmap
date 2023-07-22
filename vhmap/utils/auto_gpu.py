@@ -13,7 +13,7 @@ torch.cuda.set_device(gm.auto_choice())
 '''
 
 import os, time
-from UTIL.colorful import print黄
+from vhmap.utils.colorful import print黄
 
 class sel_gpu():
     '''
@@ -70,7 +70,7 @@ class sel_gpu():
         ones 
         自动选择最空闲GPU,返回索引
         '''
-        from UTIL.colorful import print黄
+        from vhmap.utils.colorful import print黄
         self.gpus=self.query_gpu(self.qargs)
         for gpu in self.gpus:
             gpu['specified']=False

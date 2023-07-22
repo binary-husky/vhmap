@@ -9,8 +9,8 @@
 
 import time, os
 import numpy as np
-from UTIL.colorful import *
-from UTIL.exp_upload import upload_experiment_results
+from vhmap.utils.colorful import *
+from vhmap.utils.exp_upload import upload_experiment_results
 from multi_team import MMPlatform
 from config import GlobalConfig as cfg
 from MISSION.env_router import make_parallel_envs

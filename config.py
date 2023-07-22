@@ -1,7 +1,7 @@
 import time
 import numpy as np
-from UTIL.colorful import *
-from UTIL.config_args import ChainVar
+from vhmap.utils.colorful import *
+from vhmap.utils.config_args import ChainVar
 
 
 

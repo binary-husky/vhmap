@@ -1,7 +1,7 @@
 import numpy as np
 import time
 from MISSION.env_router import make_env_function
-from UTIL.colorful import print亮红
+from vhmap.utils.colorful import print亮红
 
 N = lambda x: np.array(x)
 
