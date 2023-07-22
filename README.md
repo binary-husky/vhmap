@@ -45,7 +45,7 @@ import numpy as np
 class TestVhmap():
     def render(self, t):
         if not hasattr(self, 'visual_bridge'):
-            self.visual_bridge = mcom(path='TEMP/v2d_logger/', draw_mode='Threejs')
+            self.visual_bridge = mcom(path='TEMP/v3d_logger/', draw_mode='Threejs')
             self.visual_bridge.v3d_init()
             self.visual_bridge.set_style('gray')
             self.visual_bridge.advanced_geometry_rotate_scale_translate('box', 'BoxGeometry(1,1,1)',   0,0,0,  1,1,1, 0,0,0) 
@@ -93,11 +93,11 @@ python -m vhmap.examples.nb_3body_specials
 https://numericaltank.sjtu.edu.cn/three-body/three-body-movies.htm
 
 ## 如何回放
-VHMAP在接收到数据后，会自动地在 TEMP/v2d_logger/ 路径下生成backup.dp数据文件，该文件可以用于回放。
+VHMAP在接收到数据后，会自动地在 TEMP/v3d_logger/ 路径下生成backup.dp数据文件，该文件可以用于回放。
 
 警告：数据文件会在下一次运行时被新的日志文件覆盖，必要时请手动备份！
 ```
-python -m vhmap.threejs_replay -f TEMP/v2d_logger/backup.dp.gz -p 8085
+python -m vhmap.threejs_replay -f TEMP/v3d_logger/backup.dp.gz -p 8085
 ```
 其中-f后面的是回放文件的路径，-p接端口号例如8085，之后打开 http://localhost:8085 即可。
 
@@ -111,7 +111,7 @@ from vhmap.mcom import mcom
 
 ### 初始化
 ```python
-visual_bridge = mcom(path='TEMP/v2d_logger/', draw_mode='Threejs')
+visual_bridge = mcom(path='TEMP/v3d_logger/', draw_mode='Threejs')
 visual_bridge.v3d_init()
 ```
 

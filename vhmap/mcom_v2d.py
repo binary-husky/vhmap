@@ -9,13 +9,13 @@ V2dPlotFig = 3
 ['GTK3Agg', 'GTK3Cairo', 'MacOSX', 'nbAgg', 'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo', 'TkAgg', 
 'TkCairo', 'WebAgg', 'WX', 'WXAgg', 'WXCairo', 'agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg', 'template']
 '''
-class v2d_family():
+class v3d_family():
     def __init__(self, draw_mode) -> None:
         self.v_name_list = {}
         self.style_list = {}
         self.trival_line_list = {}
         self.trival_line_pair = []
-        self.v2d_fig_handle = None
+        self.v3d_fig_handle = None
         # self.v_name_list = {  'char_index':{ 'color': ?,'pos':(x,y),'shape':(xxxx,yyyy) }   }
         # self.style_list = {'red': {'style_name_list':[], 'plot_handle':handle} }
         self.draw_mode = draw_mode
@@ -50,7 +50,7 @@ class v2d_family():
         else:
             # 第一次出现
             self.v_name_list[char_index] = {'color':char_color}
-            if self.v2d_fig_handle is None:
+            if self.v3d_fig_handle is None:
                 self.init_fig()
             self.add_to_style(char_index, char_color)
         # 
@@ -66,15 +66,15 @@ class v2d_family():
         
         
     def init_fig(self):
-        self.v2d_fig_handle = plt.figure(V2dPlotFig, figsize=(8, 8), dpi=100)
-        # self.v2d_fig_handle.canvas.set_window_title('V2dPlotFig')
-        self.v2d_fig_handle.show()
+        self.v3d_fig_handle = plt.figure(V2dPlotFig, figsize=(8, 8), dpi=100)
+        # self.v3d_fig_handle.canvas.set_window_title('V2dPlotFig')
+        self.v3d_fig_handle.show()
         plt.show(block=False)
 
     def add_to_style(self, char_index, char_color):
         if char_color not in self.style_list.keys():
             self.style_list[char_color] = {'plot_handle':None,  'style_name_list':[]}
-            self.style_list[char_color]['plot_handle'] = self.v2d_fig_handle.gca().plot(0,0, lw=1, c=char_color)[0]
+            self.style_list[char_color]['plot_handle'] = self.v3d_fig_handle.gca().plot(0,0, lw=1, c=char_color)[0]
         # 样式已经被注册
         self.style_list[char_color]['style_name_list'].append(char_index)
 
@@ -186,15 +186,15 @@ class v2d_family():
         Z = -1 +B*( (0.1*X_) ** 2 + (0.1*Y_) ** 2 )- A * np.cos(2 * np.pi * (0.3*X_))  - A * np.cos(2 * np.pi * (0.5*Y_))
         return -Z
 
-    def v2d_add_terrain(self, theta):
+    def v3d_add_terrain(self, theta):
         self.theta = theta
         return
 
-    def v2d_draw(self):
+    def v3d_draw(self):
         # self.v_name_list = {  'char_index':{ 'color': ?,'pos':(x,y),'shape':(xxxx,yyyy) }   }
         # self.style_list = {'red': {'style_name_list':[], 'plot_handle':handle} }
 
-        # from UTIL.tensor_ops import my_view
+        # from vhmap.utils.tensor_ops import my_view
         # X = np.arange(-6, 6, 0.1)
         # Y = np.arange(-6, 6, 0.1)
         # X, Y = np.meshgrid(X, Y)    # 100
@@ -241,17 +241,17 @@ class v2d_family():
                 y_data_concat = np.concatenate((y_data_concat, (np.nan,), yc_)) # [y_data_concat, np.nan, yc_]
 
             line_handle.set_data((x_data_concat,y_data_concat))
-            axes_handle = self.v2d_fig_handle.gca()
+            axes_handle = self.v3d_fig_handle.gca()
             axes_handle.relim()
             axes_handle.axis('equal')
             axes_handle.autoscale_view(True,True,True)
-            # self.v2d_fig_handle.gca().set_xlim(-2,2)
-            # self.v2d_fig_handle.gca().set_ylim(-2,2)
+            # self.v3d_fig_handle.gca().set_xlim(-2,2)
+            # self.v3d_fig_handle.gca().set_ylim(-2,2)
         for AB in self.trival_line_pair:
             indexA, indexB = AB
-            self.v2d_line_object(indexA, indexB)
+            self.v3d_line_object(indexA, indexB)
             
-    def v2d_line_object(self, indexA, indexB):
+    def v3d_line_object(self, indexA, indexB):
         indexA = str(int(indexA))
         indexB = str(int(indexB))
         line_name = 'line:%s->%s'%(indexA,indexB)
@@ -259,28 +259,28 @@ class v2d_family():
         x2,y2=self.v_name_list[indexB]['pos']
         if line_name not in self.trival_line_list:
             self.trival_line_pair.append([indexA,indexB])
-            self.trival_line_list[line_name] = self.v2d_fig_handle.gca().plot([x1,x2],[y1,y2], lw=1, c='k')[0]
+            self.trival_line_list[line_name] = self.v3d_fig_handle.gca().plot([x1,x2],[y1,y2], lw=1, c='k')[0]
         else:
             self.trival_line_list[line_name].set_data(([x1,x2],[y1,y2]))
 
-    def v2d_clear(self):
+    def v3d_clear(self):
         self.v_name_list = {}
         self.style_list = {}
         self.trival_line_list = {}
         self.trival_line_pair = []
-        if self.v2d_fig_handle is not None:
-            self.v2d_fig_handle.clf()
+        if self.v3d_fig_handle is not None:
+            self.v3d_fig_handle.clf()
 
 
     def v3d_show(self):
-        self.v2d_draw()
+        self.v3d_draw()
         plt.draw()
         plt.pause(0.02)
         # print('v3d_show')
 
 
 if __name__ == '__main__':
-    v2d = v2d_family('Native')
+    v2d = v3d_family('Native')
 
     # v2d.v3d_object('cir|0|r|0.42', xpos=1, ypos=0)
     # v2d.v3d_object('cir|1|r|0.45', xpos=1, ypos=1)

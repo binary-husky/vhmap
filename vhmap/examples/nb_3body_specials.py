@@ -6,7 +6,7 @@ from vhmap.mcom import mcom
 PI = np.pi
 def run():
     # 可视化界面初始化
-    可视化桥 = mcom(path='TEMP/v2d_logger/', draw_mode='Threejs')
+    可视化桥 = mcom(path='TEMP/v3d_logger/', draw_mode='Threejs')
     可视化桥.初始化3D()
     # 可视化桥.设置样式('star')
     # 可视化桥.设置样式('many star')

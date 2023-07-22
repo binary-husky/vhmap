@@ -1,97 +1,100 @@
-import os, copy, atexit, time, gzip, threading, zlib, asyncio
+import os, copy, atexit, time, gzip, threading, setproctitle, traceback, json
 import numpy as np
-from colorama import init
 from multiprocessing import Process
 from vhmap.utils.colorful import *
 from vhmap.utils.network import get_host_ip, find_free_port
+from .mcom_def import fn_names, align_names, find_where_to_log
 
-mcom_fn_list_define = [
-    "v3d_object", "flash", "plot", "figure", "hold", "box", "pause", "clf", "xlim", "ylim", "xlabel", 
-    "ylabel", "drawnow", "v2d", "v3d_init", "v3d_init", "v2L", "title", "plot3", "grid", "v3dx", "v3d_show", 
-    "v2d_pop", "v2d_line_object", "v2d_clear", "v2d_add_terrain", "set_style", "set_env", "use_geometry", 
-    "geometry_rotate_scale_translate", "test_function_terrain", 'line3d', 'advanced_geometry_rotate_scale_translate',
-    "advanced_geometry_material", "skip"
-]
-别名对齐 = [
-    ('初始化3D', 'v3d_init'),
-    ('设置样式', 'set_style'),
-    ('形状之旋转缩放和平移','geometry_rotate_scale_translate'),
-    ('其他几何体之旋转缩放和平移','advanced_geometry_rotate_scale_translate'),
-    ('其他几何体之材质','advanced_geometry_material'),
-    ('发送几何体','v3d_object'),
-    ('结束关键帧','v3d_show'),
-    ('发送线条','line3d'),
-    ('发射光束','flash'),
-    ('空指令','skip'),
-]
 
-# The Design Principle: Under No Circumstance should this program Interrupt the main program!
 class mcom():
-    def __init__(self, path=None, digit=8, rapid_flush=True, draw_mode=False, tag='default', resume_mod=False, **kargs):
-        # digit 默认8，可选4,16，越小程序负担越轻 (All data is float, you do not need anything else)
-        # rapid_flush 当数据流不大时，及时倾倒文件缓存内容 (set 'False' if you'd like your SSD to survive longer)
+    """
+        2D/3D visualizer interface
+        The Design Principle: Under No Circumstance should this program interrupt the main program!
+        args:
+            draw_mode: ('Web', 'Native', 'Img', 'Threejs')
+            rapid_flush: flush data instantly. set 'False' if you'd like your SSD to survive longer
+            digit: the precision of float number. Choose from -1 (auto), 4, 8, 16
+            tag: give a name for debugging when multiple mcom object is used
+            resume_mod: resume previous session
+            resume_file: resume from which file
+            image_path: if draw_mode=='Img', where to save image
+            figsize: if draw_mode=='Img', determine the size of the figure, default is (12, 6)
+            rec_exclude: if draw_mode=='Img', blacklist some vars
+    """
+    def __init__(self, path=None, digit=-1, rapid_flush=True, draw_mode="Img", tag='default', resume_mod=False, **kargs):
         self.draw_mode = draw_mode
+        self.rapid_flush = rapid_flush
         self.path = path
         self.digit = digit
         self.tag = tag
         self.resume_mod = resume_mod
-        if kargs is None: kargs = {}
+        self.kargs = kargs
+        if self.kargs is None: self.kargs = {}
+        
+        self.flow_cnt = 0
 
         if draw_mode in ['Web', 'Native', 'Img', 'Threejs']:
             self.draw_process = True
-            port = find_free_port()
-            print亮红('[mcom.py]: draw process active!')
-            self.draw_tcp_port = ('localhost', port)
-            kargs.update({
-                'draw_mode': draw_mode,
-                'draw_udp_port': self.draw_tcp_port,
-                'port': self.draw_tcp_port,
-                'backup_file': self.path + '/backup.dp.gz'
-            })
-            DP = DrawProcess if draw_mode != 'Threejs' else DrawProcessThreejs
-            self.draw_proc = DP(**kargs)
-            self.draw_proc.start()
-            from vhmap.utils.network import QueueOnTcpClient
-            self.draw_tcp_client = QueueOnTcpClient('localhost:%d'%port)
+            self.init_draw_subprocess()
+            if draw_mode in ['Web', 'Native', 'Img']:
+                self.init_2d_kernel()
         else:
             print亮红('[mcom.py]: Draw process off! No plot will be done')
             self.draw_process = False
 
-
-        if not self.draw_mode=='Threejs':
-            self.file_lines_cnt = 0
-            self.rapid_flush = rapid_flush
-            self.flow_cnt = 0
-            _, _, self.current_buffer_index = find_where_to_log(self.path)
-            if self.resume_mod:
-                self.starting_file = self.path + '/mcom_buffer_%d____starting_session.txt' % (self.current_buffer_index-1)
-                self.current_file_handle = open(self.starting_file, 'r', encoding = "utf-8")
-                if self.draw_process: 
-                    for line in self.current_file_handle.readlines():
-                        # self.draw_udp_client.sendto(data, self.draw_udp_port)
-                        self.draw_tcp_client.send_str(line)
-                    print('previous data transfered')
-                self.current_file_handle.close()
-                self.current_file_handle = open(self.starting_file, 'a+', encoding = "utf-8")
-
-            else:
-                self.starting_file = self.path + '/mcom_buffer_%d____starting_session.txt' % (self.current_buffer_index)
-                print蓝('[mcom.py]: log file at:' + self.starting_file)
-                self.current_file_handle = open(self.starting_file, 'w+', encoding = "utf-8")
-
         atexit.register(lambda: self.__del__())
+
+    def init_draw_subprocess(self):
+        port = find_free_port()
+        print红('[mcom.py]: draw process active!')
+        self.draw_tcp_port = ('localhost', port)
+        self.kargs.update({
+            'draw_mode': self.draw_mode,
+            'draw_udp_port': self.draw_tcp_port,
+            'port': self.draw_tcp_port,
+            'backup_file': self.path + '/backup.dp.gz'
+        })
+        DP = DrawProcess if self.draw_mode != 'Threejs' else DrawProcessThreejs
+        self.draw_proc = DP(**self.kargs)
+        self.draw_proc.start()
+        from vhmap.utils.network import QueueOnTcpClient
+        self.draw_tcp_client = QueueOnTcpClient('localhost:%d'%port)
+
+
+
+    def init_2d_kernel(self):
+        if self.resume_mod:
+            if "resume_file" in self.kargs:
+                # if resume_file is specified, use it
+                self.starting_file = self.kargs["resume_file"]
+            else:
+                # otherwise find previous log path
+                _, _, self.current_buffer_index = find_where_to_log(self.path)
+                self.starting_file = self.path + '/mcom_buffer_%d____starting_session.txt' % (self.current_buffer_index-1)
+            # open the previous file, transfer previous data
+            self.file_handle = open(self.starting_file, 'r', encoding = "utf-8")
+            for line in self.file_handle.readlines(): self.draw_tcp_client.send_str(line)
+            self.file_handle.close()
+            print蓝('previous data transfered')
+            # open this file again with append mode
+            self.file_handle = open(self.starting_file, 'a+', encoding = "utf-8")
+
+        else:
+            _, _, self.current_buffer_index = find_where_to_log(self.path)
+            self.starting_file = self.path + '/mcom_buffer_%d____starting_session.txt' % (self.current_buffer_index)
+            print蓝('[mcom.py]: log file at:' + self.starting_file)
+            self.file_handle = open(self.starting_file, 'w+', encoding = "utf-8")
 
 
     # on the end of the program
     def __del__(self):
         if hasattr(self,'_deleted_'): return    # avoid exit twice
         else: self._deleted_ = True     # avoid exit twice
-
-        print红('[mcom.py]: mcom exiting! tag: %s'%self.tag)
-        if hasattr(self, 'current_file_handle') and self.current_file_handle is not None:
+        # print红('[mcom.py]: mcom exiting! tag: %s'%self.tag)
+        if hasattr(self, 'file_handle') and self.file_handle is not None:
             end_file_flag = ('><EndTaskFlag\n')
-            self.current_file_handle.write(end_file_flag)
-            self.current_file_handle.close()
+            self.file_handle.write(end_file_flag)
+            self.file_handle.close()
         if hasattr(self, 'port') and self.port is not None:
             self.disconnect()
         if hasattr(self, 'draw_proc') and self.draw_proc is not None:
@@ -100,7 +103,7 @@ class mcom():
                 self.draw_proc.join()
             except:
                 pass
-        print蓝('[mcom.py]: mcom exited! tag: %s'%self.tag)
+        # print蓝('[mcom.py]: mcom exited! tag: %s'%self.tag)
 
 
     def disconnect(self):
@@ -125,22 +128,21 @@ class mcom():
         mcom core function: send out/write str
     '''
     def send(self, data):
-        #### step 1: send directive to draw process
+        # step 1: send directive to draw process
         if self.draw_process: 
-            # self.draw_udp_client.sendto(data, self.draw_udp_port)
             self.draw_tcp_client.send_str(data)
 
 
-        #### step 2: add to file
-        # ! vhmap has its own backup method
+        # step 2: add to file
         if self.draw_mode=='Threejs': return
-        self.file_lines_cnt += 1
-        self.current_file_handle.write(data)
+        self.file_handle.write(data)
         if self.rapid_flush: 
-            self.current_file_handle.flush()
+            self.file_handle.flush()
         elif self.flow_cnt>500:
-            self.current_file_handle.flush()
+            self.file_handle.flush()
             self.flow_cnt = 0
+        else:
+            self.flow_cnt += 1
         return
 
 
@@ -157,6 +159,11 @@ class mcom():
     def rec_save(self):
         self.send('>>rec_save\n')
 
+    def rec_get(self):
+        self.send('>>rec_get\n')
+        res = self.draw_tcp_client.wait_reply()
+        return json.loads(res)
+
     def rec_end_hold(self):
         self.send('>>rec_end_hold\n')
 
@@ -166,7 +173,9 @@ class mcom():
 
     def rec(self, value, name):
         value = float(value)
-        if self.digit == 16:
+        if self.digit == -1:
+            str_tmp = '>>rec(%.16g,"%s")\n' % (value, name)
+        elif self.digit == 16:
             str_tmp = '>>rec(%.16e,"%s")\n' % (value, name)
         elif self.digit == 8:
             str_tmp = '>>rec(%.8e,"%s")\n' % (value, name)
@@ -174,37 +183,8 @@ class mcom():
             str_tmp = '>>rec(%.4e,"%s")\n' % (value, name)
         self.send(str_tmp)
 
-    def 发送虚幻4数据流(self, x, y, z, pitch, yaw, roll):
-        x = float(x)
-        y = float(y)
-        z = float(z)
-        pitch = float(pitch)
-        yaw = float(yaw)
-        roll = float(roll)
-        str_tmp = 'UE4>>(\"agent#1\",%.6e,%.6e,%.6e,%.6e,%.6e,%.6e)\n' % (x, y, z, pitch, yaw, roll)
-        self.send(str_tmp)
-
-    def 发送虚幻4数据流_多智能体(self, x_, y_, z_, pitch_, yaw_, roll_):
-        str_list = ['UE4>>']
-        for x, y, z, pitch, yaw, roll in zip(x_, y_, z_, pitch_, yaw_, roll_):
-            x = float(x)
-            y = float(y)
-            z = float(z)
-            pitch = float(pitch)
-            yaw = float(yaw)
-            roll = float(roll)
-            str_tmp = '(\"agent#1\",%.5e,%.5e,%.5e,%.5e,%.5e,%.5e)' % (x, y, z, pitch, yaw, roll)
-            str_list.append(str_tmp)
-            str_list.append(';')
-        str_list.append('\n')
-
-        cmd = ''.join(str_list)
-        self.send(cmd)
-
     def other_cmd(self, func_name, *args, **kargs):
-        # func_name = traceback.extract_stack()[-2][2]
         strlist = ['>>', func_name, '(']
-
         for _i_ in range(len(args)):
             if isinstance(args[_i_], np.ndarray):
                 strlist = self._process_ndarray(args[_i_], strlist)
@@ -216,7 +196,6 @@ class mcom():
                     strlist = self._process_ndarray(kargs[_key_], strlist, _key_)
                 else:
                     strlist = self._process_scalar(kargs[_key_], strlist, _key_)
-
         if strlist[len(strlist) - 1] == "(": strlist.append(")\n")
         else: strlist[len(strlist) - 1] = ")\n" # 把逗号换成后括号
         self.send(''.join(strlist))
@@ -227,9 +206,10 @@ class mcom():
             strlist.append("%d" % arg)
             strlist.append(",")
         elif isinstance(arg, float):
-            if self.digit == 16:  strlist.append("%.16e" % arg)
-            elif self.digit == 8: strlist.append("%.8e" % arg)
-            elif self.digit == 4: strlist.append("%.4e" % arg)
+            if self.digit == -1:    strlist.append("%.16g" % arg)
+            elif self.digit == 16:  strlist.append("%.16e" % arg)
+            elif self.digit == 8:   strlist.append("%.8e" % arg)
+            elif self.digit == 4:   strlist.append("%.4e" % arg)
             strlist.append(",")
         elif isinstance(arg, str):
             assert '$' not in arg
@@ -241,12 +221,13 @@ class mcom():
             strlist.append("%d" % arg)
             strlist.append(",")
         elif hasattr(arg, 'dtype') and np.issubdtype(arg.dtype, np.floating):
-            if self.digit == 16:  strlist.append("%.16e" % arg)
-            elif self.digit == 8: strlist.append("%.8e" % arg)
-            elif self.digit == 4: strlist.append("%.4e" % arg)
+            if self.digit == -1:    strlist.append("%.16g" % arg)
+            elif self.digit == 16:  strlist.append("%.16e" % arg)
+            elif self.digit == 8:   strlist.append("%.8e" % arg)
+            elif self.digit == 4:   strlist.append("%.4e" % arg)
             strlist.append(",")
         else:
-            print('输入的参数类型不能处理',arg.__class__)
+            print('unknown input type | 输入的参数类型不能处理', arg.__class__)
         return strlist
 
     def _process_ndarray(self, args, strlist, key=None):
@@ -256,18 +237,16 @@ class mcom():
             sub_list = ["["] + ["%.3e,"%t if (i+1)!=d else "%.3e"%t for i, t in enumerate(args)] + ["]"]
             strlist += sub_list
             strlist.append(",")
-        elif args.ndim == 2:
-            print红('[mcom]: 输入数组的维度大于1维, 目前处理不了。')
         else:
-            print红('[mcom]: 输入数组的维度大于2维, 目前处理不了。')
+            print红('[mcom]: input dimension > 1, unable to process | 输入数组的维度大于2维')
         return strlist
 
-    for fn_name in mcom_fn_list_define:
+    for fn_name in fn_names:
         build_exec_cmd = 'def %s(self,*args,**kargs):\n self.other_cmd("%s", *args,**kargs)\n'%(fn_name, fn_name)
         exec(build_exec_cmd)
 
-    for 别名, fn_name in 别名对齐:
-        build_exec_cmd = '%s = %s\n'%(别名, fn_name)
+    for align, fn_name in align_names:
+        build_exec_cmd = '%s = %s\n'%(align, fn_name)
         exec(build_exec_cmd)
 
 
@@ -275,23 +254,6 @@ class mcom():
 
 
 
-
-def find_where_to_log(path):
-    if not os.path.exists(path): os.makedirs(path)
-
-    def find_previous_start_end():
-        start = None; end = None; t = 0
-        while True:
-            is_body = os.path.exists(path + '/mcom_buffer_%d.txt' % t)
-            is_head = os.path.exists(path + '/mcom_buffer_%d____starting_session.txt' % t)
-            if is_head: start = t
-            if is_head or is_body: end = t; t += 1
-            else:
-                new = t
-                return (start, end, new)
-
-    prev_start, prev_end, new = find_previous_start_end()
-    return prev_start, prev_end, new
 
 
 
@@ -338,6 +300,8 @@ class DrawProcessThreejs(Process):
             self.tflush.start()
 
     def run(self):
+        setproctitle.setproctitle('ThreejsVisualWorker')
+        
         self.init_threejs()
         try:
             from queue import Empty
@@ -345,8 +309,8 @@ class DrawProcessThreejs(Process):
             self.tcp_connection.wait_connection() # after this, the queue begin to work
             while True:
                 buff_list = []
-                buff_list.extend(queue.get(timeout=600))
-                for _ in range(queue.qsize()): buff_list.extend(queue.get(timeout=600))
+                buff_list.extend(queue.get(block=True))
+                for _ in range(queue.qsize()): buff_list.extend(queue.get(block=True))
                 self.run_handler(buff_list)
         except KeyboardInterrupt:
             self.__del__()
@@ -438,9 +402,9 @@ class DrawProcessThreejs(Process):
         print('\n--------------------------------')
         print('JS visualizer online: http://%s:%d'%(get_host_ip(), port))
         print('JS visualizer online (localhost): http://localhost:%d'%(port))
-        print('--------------------------------')
         import webbrowser
         webbrowser.open_new_tab('http://%s:%d'%(get_host_ip(), port))
+        print('--------------------------------')
         # app.run(host='0.0.0.0', port=port)
         serve(app, threads=8, ipv4=True, ipv6=True, listen='*:%d'%port)
 
@@ -452,7 +416,7 @@ class DrawProcess(Process):
         self.draw_mode = draw_mode
         self.draw_udp_port = draw_udp_port
         self.tcp_connection = QueueOnTcpServer(self.draw_udp_port)
-        self.image_path = kargs['image_path'] if 'image_path' in kargs else None
+        self.kwargs = kargs
 
         return
 
@@ -482,17 +446,20 @@ class DrawProcess(Process):
             my_http = MyHttp('%s/html.html'%logdir, self.avail_port)
             my_http.daemon = True
             my_http.start()
+    
         self.libs_family = {
+            "rec_disable_percentile_clamp": 'rec', "rec_enable_percentile_clamp": 'rec',
             'rec_init': 'rec', 'rec': 'rec', 'rec_show': 'rec',
-            'v3d_init': 'v2d', 'v3d_object':'v2d', 'v3d_show': 'v2d', 'v2d_pop':'v2d',
-            'v2d_line_object':'v2d', 'v2d_clear':'v2d', 'v2d_add_terrain': 'v2d',
+            'v3d_init': 'v2d', 'v3d_object':'v2d', 'v3d_show': 'v2d', 'v3d_pop':'v2d',
+            'v3d_line_object':'v2d', 'v3d_clear':'v2d', 'v3d_add_terrain': 'v2d',
         }
         self.libs_init_fns = {
             'rec': self.rec_init_fn,
-            'v2d': self.v2d_init_fn,
+            'v2d': self.v3d_init_fn,
         }
 
     def run(self):
+        setproctitle.setproctitle('HmapPlotProcess')
         self.init_matplot_lib()
         try:
             # self.tcp_connection.set_handler(self.run_handler)
@@ -516,8 +483,17 @@ class DrawProcess(Process):
         while True:
             if len(buff_list) == 0: break
             buff = buff_list.pop(0)
-            if (buff=='>>rec_show\n') and ('>>rec_show\n' in buff_list): continue # skip
-            self.process_cmd(buff)
+            if (buff=='>>rec_show\n') and ('>>rec_show\n' in buff_list): 
+                continue # skip
+            elif (buff=='>>rec_get\n'): 
+                result = self.rec.rec_get()
+                self.tcp_connection.tcpServerP2P.reply_last_client(result)
+            else:
+                try:
+                    self.process_cmd(buff)
+                except:
+                    traceback.print_exc()
+                    print亮红(f'[mcom.py] We have encountered error processing command: {buff}')
 
         #     # print('成功处理指令:', buff)
 
@@ -533,7 +509,7 @@ class DrawProcess(Process):
                 cmd_str_ = cmd_str_+'()'
             prefix = self.get_cmd_lib(cmd_str_)
             if prefix is not None: 
-                eval('%s.%s'%(prefix, cmd_str_))
+                eval(f'{prefix}.{cmd_str_}')
 
     def get_cmd_lib(self, cmd):
         cmd_key = None
@@ -549,11 +525,14 @@ class DrawProcess(Process):
 
     def rec_init_fn(self):
         from vhmap.mcom_rec import rec_family
-        self.rec = rec_family('r', self.draw_mode, self.image_path)
+        self.rec = rec_family('r', 
+            self.draw_mode, 
+            **self.kwargs
+        )
 
-    def v2d_init_fn(self):
-        from vhmap.mcom_v2d import v2d_family
-        self.v2d = v2d_family(self.draw_mode)
+    def v3d_init_fn(self):
+        from vhmap.mcom_v3d import v3d_family
+        self.v2d = v3d_family(self.draw_mode)
 
 
 

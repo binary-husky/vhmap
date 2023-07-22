@@ -8,7 +8,7 @@ from vhmap.utils.network import get_host_ip, find_free_port
 mcom_fn_list_define = [
     "v3d_object", "flash", "plot", "figure", "hold", "box", "pause", "clf", "xlim", "ylim", "xlabel", 
     "ylabel", "drawnow", "v2d", "v3d_init", "v3d_init", "v2L", "title", "plot3", "grid", "v3dx", "v3d_show", 
-    "v2d_pop", "v2d_line_object", "v2d_clear", "v2d_add_terrain", "set_style", "set_env", "use_geometry", 
+    "v3d_pop", "v3d_line_object", "v3d_clear", "v3d_add_terrain", "set_style", "set_env", "use_geometry", 
     "geometry_rotate_scale_translate", "test_function_terrain", 'line3d', 'advanced_geometry_rotate_scale_translate',
     "advanced_geometry_material", "skip"
 ]
@@ -39,7 +39,7 @@ class mcom():
         if draw_mode in ['Web', 'Native', 'Img', 'Threejs']:
             self.draw_process = True
             port = find_free_port()
-            print亮红('[mcom.py]: draw process active!')
+            print红('[mcom.py]: draw process active!')
             self.draw_tcp_port = ('localhost', port)
             kargs.update({
                 'draw_mode': draw_mode,
@@ -75,7 +75,7 @@ class mcom():
         if hasattr(self,'_deleted_'): return    # avoid exit twice
         else: self._deleted_ = True     # avoid exit twice
 
-        print红('[mcom.py]: mcom exiting! tag: %s'%self.tag)
+        # print红('[mcom.py]: mcom exiting! tag: %s'%self.tag)
         if hasattr(self, 'current_file_handle') and self.current_file_handle is not None:
             end_file_flag = ('><EndTaskFlag\n')
             self.current_file_handle.write(end_file_flag)
@@ -88,7 +88,7 @@ class mcom():
                 self.draw_proc.join()
             except:
                 pass
-        print蓝('[mcom.py]: mcom exited! tag: %s'%self.tag)
+        # print蓝('[mcom.py]: mcom exited! tag: %s'%self.tag)
 
 
     def disconnect(self):
@@ -453,9 +453,9 @@ class DrawProcessThreejs(Process):
         print('\n--------------------------------')
         print('JS visualizer online: http://%s:%d'%(get_host_ip(), port))
         print('JS visualizer online (localhost): http://localhost:%d'%(port))
-        print('--------------------------------')
         import webbrowser
         webbrowser.open_new_tab('http://%s:%d'%(get_host_ip(), port))
+        print('--------------------------------')
         # app.run(host='0.0.0.0', port=port)
         serve(app, threads=8, ipv4=True, ipv6=True, listen='*:%d'%port)
 
@@ -527,12 +527,12 @@ class DrawProcess(Process):
             my_http.start()
         self.libs_family = {
             'rec_init': 'rec', 'rec': 'rec', 'rec_show': 'rec',
-            'v3d_init': 'v2d', 'v3d_object':'v2d', 'v3d_show': 'v2d', 'v2d_pop':'v2d',
-            'v2d_line_object':'v2d', 'v2d_clear':'v2d', 'v2d_add_terrain': 'v2d',
+            'v3d_init': 'v2d', 'v3d_object':'v2d', 'v3d_show': 'v2d', 'v3d_pop':'v2d',
+            'v3d_line_object':'v2d', 'v3d_clear':'v2d', 'v3d_add_terrain': 'v2d',
         }
         self.libs_init_fns = {
             'rec': self.rec_init_fn,
-            'v2d': self.v2d_init_fn,
+            'v2d': self.v3d_init_fn,
         }
 
     def run(self):
@@ -594,9 +594,9 @@ class DrawProcess(Process):
         from vhmap.mcom_rec import rec_family
         self.rec = rec_family('r', self.draw_mode, self.image_path)
 
-    def v2d_init_fn(self):
-        from vhmap.mcom_v2d import v2d_family
-        self.v2d = v2d_family(self.draw_mode)
+    def v3d_init_fn(self):
+        from vhmap.mcom_v3d import v3d_family
+        self.v2d = v3d_family(self.draw_mode)
 
 
 

@@ -8,7 +8,7 @@ from vhmap.utils.network import get_host_ip, find_free_port
 mcom_fn_list_define = [
     "v3d_object", "flash", "plot", "figure", "hold", "box", "pause", "clf", "xlim", "ylim", "xlabel", 
     "ylabel", "drawnow", "v2d", "v3d_init", "v3d_init", "v2L", "title", "plot3", "grid", "v3dx", "v3d_show", 
-    "v2d_pop", "v2d_line_object", "v2d_clear", "v2d_add_terrain", "set_style", "set_env", "use_geometry", 
+    "v3d_pop", "v3d_line_object", "v3d_clear", "v3d_add_terrain", "set_style", "set_env", "use_geometry", 
     "geometry_rotate_scale_translate", "test_function_terrain", 'line3d', 'advanced_geometry_rotate_scale_translate',
 ]
 别名对齐 = [
@@ -555,12 +555,12 @@ class DrawProcess(Process):
             my_http.start()
         self.libs_family = {
             'rec_init': 'rec', 'rec': 'rec', 'rec_show': 'rec',
-            'v3d_init': 'v2d', 'v3d_object':'v2d', 'v3d_show': 'v2d', 'v2d_pop':'v2d',
-            'v2d_line_object':'v2d', 'v2d_clear':'v2d', 'v2d_add_terrain': 'v2d',
+            'v3d_init': 'v2d', 'v3d_object':'v2d', 'v3d_show': 'v2d', 'v3d_pop':'v2d',
+            'v3d_line_object':'v2d', 'v3d_clear':'v2d', 'v3d_add_terrain': 'v2d',
         }
         self.libs_init_fns = {
             'rec': self.rec_init_fn,
-            'v2d': self.v2d_init_fn,
+            'v2d': self.v3d_init_fn,
         }
 
     def run(self):
@@ -614,7 +614,7 @@ class DrawProcess(Process):
         from vhmap.mcom_rec import rec_family
         self.rec = rec_family('r', self.draw_mode)
 
-    def v2d_init_fn(self):
-        from vhmap.mcom_v2d import v2d_family
-        self.v2d = v2d_family(self.draw_mode)
+    def v3d_init_fn(self):
+        from vhmap.mcom_v3d import v3d_family
+        self.v2d = v3d_family(self.draw_mode)
 

@@ -375,5 +375,5 @@ class SmartPool(object):
 
 # To compat Windows
 if not platform.system()=="Linux":  
-    from UTIL.win_pool import SmartPool
+    from vhmap.utils.win_pool import SmartPool
     
