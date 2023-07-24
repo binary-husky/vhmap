@@ -131,7 +131,7 @@ visual_bridge.set_style('earth')      # 在场景中放一个地球
 visual_bridge.set_style('background', color='White') # 注意不可以省略参数键值'color=' ！
 
 # 如果label要使用中文字符，需要设置字体，否则字符会变成问号'?'（另外如果字体没加载完，或者加载完刷新不及时，也会显示为?）
-visual_bridge.set_style('font', fontPath='/examples/fonts/ttf/HGXH_CNKI.TTF') # 注意不可以省略参数键值'fontPath=' ！
+visual_bridge.set_style('font', fontPath='/examples/fonts/ttf/FZYTK.TTF') # 注意不可以省略参数键值'fontPath=' ！
 # 如果label要使用中文字符，而且需要换行，则还需要额外设置行距 fontLineHeight
 visual_bridge.set_style('font', fontPath='/examples/fonts/ttf/simhei.ttf', fontLineHeight=1500)   
 
