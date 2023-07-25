@@ -257,6 +257,6 @@ visual_bridge.advanced_geometry_material('ball',
 
 ## 1. RRT算法演示（3D）
 
-![vhmap-rrt](https://github.com/binary-husky/vhmap/assets/96192199/9d975d2b-6a30-42cd-b5dd-c1a2adfa8026)
+![vhmap-rrt-half](https://github.com/binary-husky/vhmap/assets/96192199/5242de83-4330-4b1c-8ade-f8f92869a30f)
 
 
