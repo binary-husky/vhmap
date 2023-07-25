@@ -255,8 +255,15 @@ visual_bridge.advanced_geometry_material('ball',
 
 # 展示应用
 
-## 1. RRT算法演示（3D）
-
+## 1. RRT算法（3D）
 ![vhmap-rrt-half](https://github.com/binary-husky/vhmap/assets/96192199/5242de83-4330-4b1c-8ade-f8f92869a30f)
+![vhmap+rrt_crop mp4](https://github.com/binary-husky/vhmap/assets/96192199/f06158a7-b41a-41e3-8666-947b079b7d7a)
 
+## 2. A*算法（3D）
+![vhmap+Astar-crop mp4](https://github.com/binary-husky/vhmap/assets/96192199/b0740219-7596-4ac8-a0e6-632eb56499ea)
 
+## 3. Dijkstra算法（3D）
+![vhmap+dijkstra-crop mp4](https://github.com/binary-husky/vhmap/assets/96192199/0a518596-cdcf-4c0d-9006-43415b009416)
+
+## 4. N体（3D）
+![vhmap-n-body-crop mp4](https://github.com/binary-husky/vhmap/assets/96192199/15112c3e-8f97-4e3a-980a-cfa02e1ff0b8)
