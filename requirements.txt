@@ -3,3 +3,4 @@ waitress
 numpy
 scipy
 colorama
+setproctitle
