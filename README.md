@@ -150,6 +150,10 @@ visual_bridge.set_style('skybox6side',    # 设置天空盒子，注意不可以
 ```
 
 ### 声明几何体
+```
+advanced_geometry_rotate_scale_translate(自定义几何体名词, 几何体形状, 几何体旋转1, 几何体旋转2, 几何体旋转3, 几何体尺度1, 几何体尺度2, 几何体尺度3, 几何体平移1, 几何体平移2, 几何体平移3)
+```
+
 ```python
 # declare geo 'oct1', init with OctahedronGeometry, then (1)rotate & (2)scale & (3)translate
 visual_bridge.advanced_geometry_rotate_scale_translate('oct1', 'OctahedronGeometry(1,0)', 0,0,0,  1,1,1, 0,0,0)   # 八面体
