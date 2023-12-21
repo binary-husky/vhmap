@@ -24,7 +24,7 @@ vhmap是一个基于ThreeJs+Python的开源项目，提供了一个简洁易用�
 
 ## 安装 
 ```shell
-pip install vhmap>=4
+pip install vhmap>=4.2
 ```
 
 ## 20行代码-展示VHMAP的简单、丝滑
