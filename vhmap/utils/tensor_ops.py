@@ -17,7 +17,7 @@ class ConfigCache(object):
         self.init = False
 
     def read_cfg(self):
-        from config import GlobalConfig
+        from vhmap.config import GlobalConfig
         if GlobalConfig.cfg_ready:
             self.device_ = GlobalConfig.device
             self.use_float64_ = GlobalConfig.use_float64

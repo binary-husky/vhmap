@@ -9,7 +9,7 @@ def find_free_port():
 
 def find_free_port_no_repeat():
     from vhmap.utils.file_lock import FileLock
-    from config import GlobalConfig as cfg
+    from vhmap.config import GlobalConfig as cfg
     fp = './TEMP/find_free_ports_no_repeat_%s'%cfg.machine_info['ExpUUID']
 
     with FileLock(fp):

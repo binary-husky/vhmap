@@ -17,7 +17,7 @@ pip install vhmap>=4.1
 ```python
 import numpy as np
 import time
-from config import GlobalConfig; GlobalConfig.logdir = 'live_image'
+from vhmap.config import GlobalConfig; GlobalConfig.logdir = 'live_image'
 
 """ 
 没有时间轴

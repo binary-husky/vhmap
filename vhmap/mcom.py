@@ -437,7 +437,7 @@ class DrawProcess(Process):
         else:
             assert False
 
-        from config import GlobalConfig
+        from vhmap.config import GlobalConfig
         logdir = GlobalConfig.logdir
         if not os.path.exists(logdir):
             os.makedirs(logdir)

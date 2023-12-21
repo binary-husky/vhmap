@@ -1,7 +1,7 @@
 import os, fnmatch, matplotlib, time, copy, json
 import numpy as np
 from functools import lru_cache
-from config import GlobalConfig
+from vhmap.config import GlobalConfig
 # 设置matplotlib正常显示中文和负号
 # matplotlib.rcParams['font.sans-serif']=['SimHei']   # 用黑体显示中文
 # matplotlib.rcParams['axes.unicode_minus']=False     # 正常显示负号

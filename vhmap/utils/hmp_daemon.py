@@ -56,7 +56,7 @@ def clean_child_process(pid):
 
 def hmp_clean_up():
     from vhmap.utils.exp_upload import upload_experiment_results
-    from config import GlobalConfig as cfg
+    from vhmap.config import GlobalConfig as cfg
     print亮黄('[main.py] upload results to storage server via SSH')
     if cfg.allow_res_upload: upload_experiment_results(cfg)
     print亮黄('[main.py] kill all children process, then self-terminate.')
