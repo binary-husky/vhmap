@@ -6,6 +6,7 @@ vhmap是一个基于ThreeJs+Python的开源项目，提供了一个简洁易用�
 
 通过以上特点，vhmap为用户提供了一个简单高效、具有交互性的3D可视化解决方案。
 
+
 ## 安装
 ```shell
 pip install vhmap>=4.2
@@ -13,6 +14,8 @@ pip install vhmap>=4.2
 
 
 ## 2D数据采集与实时绘图
+
+![2023-12-21_17-31-46-crop mkv](https://github.com/binary-husky/vhmap/assets/96192199/54a990ad-3756-477c-88e7-c296d30723b1)
 
 ```python
 import numpy as np
