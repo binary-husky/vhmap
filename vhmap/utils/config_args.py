@@ -87,7 +87,7 @@ def get_core_args(vb=True):
     else:
         assert False
 
-    from config import GlobalConfig as cfg
+    from vhmap.config import GlobalConfig as cfg
     return cfg
 
 def prepare_recycle_folder():
@@ -113,7 +113,7 @@ def prepare_args(vb=True):
         json_data = json.load(f)
     new_args = load_config_via_json(json_data, vb)
 
-    from config import GlobalConfig as cfg
+    from vhmap.config import GlobalConfig as cfg
     note_name_overide = None
     if not skip_logdir_check: 
         note_name_overide = check_experiment_log_path(cfg.logdir)

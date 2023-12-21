@@ -28,7 +28,7 @@ extra_files = package_files('vhmap')
 
 setuptools.setup(
     name="vhmap",
-    version="4.0.0",
+    version="4.1.0",
     author="Qingxu",
     author_email="505030475@qq.com",
     description="Advanced 3D visualizer for researchers",
